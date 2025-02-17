@@ -1,0 +1,42 @@
+admin_variables=
+{
+    admin_credentials="admin:admin"
+    mysql_ifaces="0.0.0.0:6032"
+    refresh_interval=2000
+    unix_socket="/tmp/proxysql.sock"
+}
+
+mysql_variables=
+{
+    interfaces="0.0.0.0:6033"
+    default_query_delay=0
+    default_query_timeout=36000000
+    threads=2
+    max_connections=500
+    have_compress=true
+    poll_timeout=2000
+    monitor_username="monitor"
+    monitor_password="monitor"
+    monitor_history=600000
+}
+
+mysql_servers =
+(
+    { address="172.20.1.11", port=3306, hostgroup=10, max_connections=100 },
+    { address="172.20.1.12", port=3306, hostgroup=11, max_connections=100 },
+    { address="172.20.1.13", port=3306, hostgroup=11, max_connections=100 },
+    { address="172.20.1.11", port=3306, hostgroup=20, max_connections=100 },
+    { address="172.20.1.12", port=3306, hostgroup=20, max_connections=100 },
+    { address="172.20.1.13", port=3306, hostgroup=20, max_connections=100 }
+)
+
+mysql_users =
+(
+    { username = "root", password = "root", default_hostgroup = 10, active = 1 }
+)
+
+mysql_query_rules =
+(
+    { rule_id=10, username="root", match_pattern="^SELECT", destination_hostgroup=20, active=1 },
+    { rule_id=20, username="root", match_pattern=".*", destination_hostgroup=10, active=1 }
+)
