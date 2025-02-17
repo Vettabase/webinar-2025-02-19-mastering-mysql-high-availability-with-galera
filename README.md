@@ -1,5 +1,6 @@
 # Description
 
+
 This repositories contains example for the webinar "Mastering MySQL High Availability with Galera", by Mike Rykmas, 2025/02/19.
 
 We're making the examples publicly available not just as helper material for the webinar, but also for future reference. Even if you didn't attend the webinar, hopefully you'll find some useful examples and explanations here.
