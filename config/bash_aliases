@@ -7,9 +7,9 @@ alias galera3="mysqlsh --defaults-file='config/mysql-client.cnf' --host 127.0.0.
 alias haproxy_sql="mysqlsh --defaults-file='config/mysql-client.cnf' --host 127.0.0.1 --port 3311 --sql --database=dbtest"
 
 # ProxySQL Connections (via MySQL Shell)
-alias proxysql_admin="mysqlsh --defaults-file='config/mysql-client.cnf' --host 127.0.0.1 --port 3320 --sql"
-alias proxysql_write="mysqlsh --defaults-file='config/mysql-client.cnf' --host 127.0.0.1 --port 3321 --sql --database=dbtest"
-alias proxysql_read="mysqlsh --user=monitor --password=monitor --host 127.0.0.1 --port 3322 --sql"
+alias proxysql_admin="mysqlsh --defaults-file='config/proxysql-admin.cnf' --host 127.0.0.1 --port 3320 --sql"
+alias proxysql_write="mysqlsh --defaults-file='config/mysql-client.cnf' --host 127.0.0.1 --port 3321 --sql --database=information_schema"
+alias proxysql_read="mysqlsh --user=monitor --password=monitor --host 127.0.0.1 --port 3322 --sql --database=information_schema"
 
 # Sysbench Container Access
 alias sysbench="docker exec -it sysbench bash"

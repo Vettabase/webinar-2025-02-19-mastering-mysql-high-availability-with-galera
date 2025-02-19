@@ -105,9 +105,9 @@ docker exec -it sysbench bash
 - Run test 
 
 ```bash
-./sb_prepare.sh
-./sb_run_on_galera2.sh
-./sb_run_on_haproxy.sh
+./sb_tpcc_prepare.sh
+./sb_tpcc_run_on_galera2.sh
+./sb_tpcc_run_on_haproxy.sh
 ```
 
 ## Galera2 - Direct Write

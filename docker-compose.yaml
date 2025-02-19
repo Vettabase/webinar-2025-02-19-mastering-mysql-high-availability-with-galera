@@ -149,7 +149,7 @@ services:
       - "3321:6033"  # Write Queries (Hostgroup 10)
       - "3322:6033"  # Read Queries (Hostgroup 20)
     volumes:
-      - "./config/proxysql.cnf:/etc/proxysql.cnf:ro"
+      - "./config/proxysql-server.cnf:/etc/proxysql.cnf:ro"
     depends_on:
       galera1:
         condition: service_healthy
