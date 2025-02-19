@@ -300,5 +300,5 @@ while true; do proxysql_write --execute "SELECT now(), concat('Writer: ', @@host
 - Read connection
 
 ```bash
-while true; do proxysql_read --execute "USE mysql; SELECT now(), concat('Reader: ', @@hostname)" 2>/dev/null | tail -1; sleep 2; done
+while true; do proxysql_read --execute "SELECT now(), concat('Reader: ', @@hostname)" 2>/dev/null | tail -1; sleep 2; done
 ```
