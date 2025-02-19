@@ -10,7 +10,8 @@ until mariadb-admin --defaults-file=/etc/.my.cnf --silent ping; do
 done
 
 echo "Loading Sakila database..."
-mariadb --defaults-file=/etc/.my.cnf < /tmp/sql/sakila-schema.sql
-mariadb --defaults-file=/etc/.my.cnf < /tmp/sql/sakila-data.sql
+mariadb --defaults-file=/etc/.my.cnf < /tmp/sql/dbtest-schema.sql
+# mariadb --defaults-file=/etc/.my.cnf < /tmp/sql/sakila-schema.sql
+# mariadb --defaults-file=/etc/.my.cnf < /tmp/sql/sakila-data.sql
 
 echo "Galera1 initialization complete."

@@ -29,5 +29,14 @@ RUN git clone https://github.com/akopytov/sysbench.git && \
 # Set up working directory
 WORKDIR /sysbench-scripts
 
+# Copy Lua scripts to /usr/local/share/sysbench
+COPY ./tests/tpcc*.lua /usr/local/share/sysbench/
+
+# Copy Bash scripts to /sysbench-scripts
+COPY ./bash/*.sh /sysbench-scripts/
+
+# Make the scripts executable
+RUN chmod +x /sysbench-scripts/*.sh
+
 # Keep the container running by default
 CMD ["sleep", "infinity"]

@@ -6,24 +6,15 @@ x-mariadb-variables: &mariadb-variables
     - MYSQL_ROOT_HOST=%
     - MYSQL_ROOT_PASSWORD=root
     - MYSQL_ALLOW_EMPTY_PASSWORD=no
-    - MYSQL_DATABASE=sakila
-    - WSREP_ON=ON
-    - WSREP_PROVIDER=/usr/lib/galera/libgalera_smm.so
-    - WSREP_SST_METHOD=rsync
-    - WSREP_CLUSTER_NAME=vettabase_galera
-    - BINLOG_FORMAT=ROW
-    - DEFAULT_STORAGE_ENGINE=InnoDB
-    - LOG_BIN=ON
-    - LOG_REPLICA_UPDATES=ON
-    - PID_FILE=/var/lib/mysql/mysqld.pid
-  networks:
-    vettabase_net:
-      ipv4_address: 172.20.1.11
+    - MYSQL_DATABASE=dbtest
+    - MARIADB_AUTO_UPGRADE=1
+    - TZ=UTC
+  working_dir: /root  
   healthcheck:
-    test: ["CMD", "mariadb-admin", "--defaults-file=/etc/.my.cnf", "ping"]
-    interval: 10s
-    retries: 5
-    timeout: 5s
+      test: ["CMD", "bash", "-c", "mariadb -uroot -proot -e 'SHOW STATUS LIKE \"wsrep_cluster_status\"' | grep Primary"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
 
 services:
 
@@ -31,23 +22,32 @@ services:
     <<: *mariadb-variables
     container_name: galera1
     hostname: galera1
+    environment:
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ALLOW_EMPTY_PASSWORD=no
+      - MYSQL_DATABASE=dbtest
+      - WSREP_CLUSTER_NAME=vettabase_galera
+      - WSREP_CLUSTER_ADDRESS=gcomm://galera1:4567,galera2:4567,galera3:4567
     networks:
       vettabase_net:
         ipv4_address: 172.20.1.11
     ports:
       - "3301:3306"
     volumes:
-      - "./volumes/galera1_data:/var/lib/mysql"
+      - "./volumes/galera1:/var/lib/mysql"
+      - "./config/mysqld.conf:/etc/mysql/mariadb.conf.d/mysqld.cnf:ro"
       - "./config/mysql-client.cnf:/etc/.my.cnf"
       - "./scripts/sql:/tmp/sql"
-      - "./scripts/bash/init_galera1.sh:/docker-entrypoint-initdb.d/init_galera1.sh"
-      - "./scripts/bash/init_users.sh:/docker-entrypoint-initdb.d/init_users.sh"
-    command:
-      [
-        "--server-id=1",
-        "--wsrep_cluster_address=gcomm://",
-        "--wsrep_node_address=172.20.1.11"
-      ]
+      - "./scripts/bash/entrypoint_galera1.sh:/entrypoint.sh"
+      - "./scripts/bash/init_galera1_users.sh:/docker-entrypoint-initdb.d/init_galera1_users.sh"
+      - "./scripts/bash/init_galera1_db.sh:/docker-entrypoint-initdb.d/init_galera1_db.sh"
+    entrypoint: ["/bin/bash", "/entrypoint.sh"]
+    healthcheck:
+      test: ["CMD", "bash", "-c", "mariadb -uroot -proot -e 'SHOW STATUS LIKE \"wsrep_cluster_status\"' | grep Primary"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
 
   galera2:
     <<: *mariadb-variables
@@ -59,19 +59,26 @@ services:
     ports:
       - "3302:3306"
     volumes:
-      - "./volumes/galera2_data:/var/lib/mysql"
+      - "./volumes/galera2:/var/lib/mysql"
+      - "./config/mysqld.conf:/etc/mysql/mariadb.conf.d/mysqld.cnf:ro"
       - "./config/mysql-client.cnf:/etc/.my.cnf"
       - "./scripts/sql:/tmp/sql"
-      - "./scripts/bash/init_users.sh:/docker-entrypoint-initdb.d/init_users.sh"
+      - "./scripts/bash/init_galera1_users.sh:/docker-entrypoint-initdb.d/init_galera1_users.sh"
     command:
       [
-        "--server-id=2",
-        "--wsrep_cluster_address=gcomm://galera1,galera2,galera3",
-        "--wsrep_node_address=172.20.1.12"
+        "--binlog_format=ROW",
+        "--wsrep_provider=/usr/lib/galera/libgalera_smm.so",
+        "--wsrep_on=ON",
+        "--wsrep_auto_increment_control=on",
+        "--wsrep_cluster_name=vettabase_galera",
+        "--wsrep_node_name=galera2",
+        "--wsrep_cluster_address=gcomm://galera1:4567,galera2:4567,galera3:4567",
+        "--wsrep_node_address=172.20.1.12",
+        "--wsrep_sst_method=rsync",
       ]
     depends_on:
       galera1:
-        condition: service_healthy
+        condition: service_healthy        
 
   galera3:
     <<: *mariadb-variables
@@ -83,18 +90,25 @@ services:
     ports:
       - "3303:3306"
     volumes:
-      - "./volumes/galera3_data:/var/lib/mysql"
+      - "./volumes/galera3:/var/lib/mysql"
+      - "./config/mysqld.conf:/etc/mysql/mariadb.conf.d/mysqld.cnf:ro"
       - "./config/mysql-client.cnf:/etc/.my.cnf"
       - "./scripts/sql:/tmp/sql"
-      - "./scripts/bash/init_users.sh:/docker-entrypoint-initdb.d/init_users.sh"
+      - "./scripts/bash/init_galera1_users.sh:/docker-entrypoint-initdb.d/init_galera1_users.sh"
     command:
       [
-        "--server-id=3",
-        "--wsrep_cluster_address=gcomm://galera1,galera2,galera3",
-        "--wsrep_node_address=172.20.1.12"
+        "--binlog_format=ROW",
+        "--wsrep_provider=/usr/lib/galera/libgalera_smm.so",
+        "--wsrep_on=ON",
+        "--wsrep_auto_increment_control=on",
+        "--wsrep_cluster_name=vettabase_galera",
+        "--wsrep_node_name=galera3",
+        "--wsrep_cluster_address=gcomm://galera1:4567,galera2:4567,galera3:4567",
+        "--wsrep_node_address=172.20.1.13",
+        "--wsrep_sst_method=rsync",
       ]
     depends_on:
-      galera1:
+      galera2:
         condition: service_healthy
 
   haproxy:
@@ -162,8 +176,6 @@ services:
         condition: service_healthy
       haproxy:
         condition: service_healthy
-    volumes:
-      - "./volumes/benchmark_data:/tmp/benchmark_data"
     environment:
       MYSQL_HOST_GALERA1: 172.20.1.11
       MYSQL_HOST_GALERA2: 172.20.1.12
@@ -172,8 +184,10 @@ services:
       MYSQL_HOST_PROXYSQL: 172.20.1.15
       MYSQL_USER: root
       MYSQL_PASSWORD: root
-      MYSQL_PORT: 6033
-      MYSQL_DB: sakila
+      MYSQL_PORT_GALERA: 3306
+      MYSQL_PORT_HAPROXY: 3307
+      MYSQL_PORT_PROXYSQL: 6033
+      MYSQL_DB: dbtest
 
 networks:
   vettabase_net:

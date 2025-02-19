@@ -1,15 +1,15 @@
 # Galera Direct Connections (via MySQL Shell)
-alias galera1="mysqlsh root@127.0.0.1:3301 --sql --database=sakila"
-alias galera2="mysqlsh root@127.0.0.1:3302 --sql --database=sakila"
-alias galera3="mysqlsh root@127.0.0.1:3303 --sql --database=sakila"
+alias galera1="mysqlsh --defaults-file='config/mysql-client.cnf' --host 127.0.0.1 --port 3301 --sql --database=dbtest"
+alias galera2="mysqlsh --defaults-file='config/mysql-client.cnf' --host 127.0.0.1 --port 3302 --sql --database=dbtest"
+alias galera3="mysqlsh --defaults-file='config/mysql-client.cnf' --host 127.0.0.1 --port 3303 --sql --database=dbtest"
 
 # HAProxy Connections (via MySQL Shell)
-alias haproxy_sql="mysqlsh root@127.0.0.1:3311 --sql --database=sakila"
+alias haproxy_sql="mysqlsh --defaults-file='config/mysql-client.cnf' --host 127.0.0.1 --port 3311 --sql --database=dbtest"
 
 # ProxySQL Connections (via MySQL Shell)
-alias proxysql_admin="mysqlsh admin@127.0.0.1:3320 --sql"
-alias proxysql_write="mysqlsh root@127.0.0.1:3321 --sql --database=sakila"
-alias proxysql_read="mysqlsh root@127.0.0.1:3322 --sql --database=sakila"
+alias proxysql_admin="mysqlsh --defaults-file='config/mysql-client.cnf' --host 127.0.0.1 --port 3320 --sql"
+alias proxysql_write="mysqlsh --defaults-file='config/mysql-client.cnf' --host 127.0.0.1 --port 3321 --sql --database=dbtest"
+alias proxysql_read="mysqlsh --user=monitor --password=monitor --host 127.0.0.1 --port 3322 --sql"
 
 # Sysbench Container Access
 alias sysbench="docker exec -it sysbench bash"
